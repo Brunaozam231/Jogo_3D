@@ -2,19 +2,21 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movimento")]
     public float velocidade = 5f;
     public float velocidadeRotacao = 10f;
 
     [Header("Pulo")]
     public float forcaPulo = 6f;
-    public float distanciaChao = 0.2f;
+    public Transform groundCheck;
+    public float raioGroundCheck = 0.25f;
     public LayerMask camadaChao;
 
+    [Header("Referências")]
     public Transform cameraTransform;
 
     private Rigidbody rb;
     private Vector3 direcaoMovimento;
-
     private bool estaNoChao;
 
     void Start()
@@ -24,14 +26,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        // Movimento
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 frenteCamera = cameraTransform.forward;
         Vector3 direitaCamera = cameraTransform.right;
 
-        frenteCamera.y = 0;
-        direitaCamera.y = 0;
+        frenteCamera.y = 0f;
+        direitaCamera.y = 0f;
 
         frenteCamera.Normalize();
         direitaCamera.Normalize();
@@ -42,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
 
         direcaoMovimento.Normalize();
 
+        // Rotação do personagem
         if (direcaoMovimento.magnitude > 0.1f)
         {
             Quaternion rotacaoDesejada =
@@ -54,11 +58,10 @@ public class PlayerMovement : MonoBehaviour
             );
         }
 
-        // Verifica se está no chão
-        estaNoChao = Physics.Raycast(
-            transform.position,
-            Vector3.down,
-            distanciaChao + 1f,
+        // Verifica se o personagem está encostando no chão
+        estaNoChao = Physics.CheckSphere(
+            groundCheck.position,
+            raioGroundCheck,
             camadaChao
         );
 
